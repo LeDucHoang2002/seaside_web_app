@@ -75,7 +75,7 @@ Route::get('/verify-email2', function () {
 Route::middleware(['SellerMiddleware'])->group(function () {
     Route::prefix('seller1')->group(function () {
         Route::get('', [DashboardController::class, 'index'])->name('seller');
-
+        Route::post('/process-data', [DashboardController::class, 'processData'])->name('process.data');
         Route::controller(VoucherController::class)->group(function () {
             Route::prefix('vouchers')->group(function () {
                 Route::get('list', 'index');

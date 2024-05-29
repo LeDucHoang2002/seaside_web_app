@@ -81,7 +81,7 @@ class SellerProductController extends Controller
                 'product_details.*.product_numbers.*' => 'required|integer|min:0',        
                 'URL_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
-    
+
             $username = session('username');
             $id_ShopProfile = ShopProfile::where('username', $username)->value('id');
             $product = Product::create([
@@ -90,42 +90,52 @@ class SellerProductController extends Controller
                 'id_category_child' => $request->input('id_category_child'),
                 'description' => $request->input('description'),
             ]);
-    
+
             $productDetails = $request->input('product_details');
-    
+
             foreach ($productDetails as $detail) {
-                $productDetail = $product->productDetail()->create([
-                    'name_product_detail' => $detail['name_product_detail'],
-                    'price' => $detail['price'],
-                ]);
-    
+                // Tạo một chi tiết sản phẩm mới và gán các giá trị từ dữ liệu yêu cầu
+                $productDetail = new Product_Detail();
+                $productDetail->name_product_detail = $detail['name_product_detail'];
+                $productDetail->price = $detail['price'];
+                $product->productDetails()->save($productDetail); // Lưu chi tiết sản phẩm vào cơ sở dữ liệu
+
+                // Tạo các kích thước và số lượng sản phẩm cho chi tiết sản phẩm mới
                 $sizes = $detail['sizes'];
                 $productNumbers = $detail['product_numbers'];
-    
+
                 foreach ($sizes as $key => $size) {
-                    $productDetail->productSizes()->create([
-                        'size' => $size,
-                        'product_number' => $productNumbers[$key],
-                    ]);
+                    // Tạo một kích thước sản phẩm mới và gán các giá trị từ dữ liệu yêu cầu
+                    $sizeProduct = new Size_Product();
+                    $sizeProduct->size = $size;
+                    $sizeProduct->product_number = $productNumbers[$key];
+                    $productDetail->productSizes()->save($sizeProduct); // Lưu kích thước sản phẩm vào cơ sở dữ liệu
                 }
+
                 if ($request->hasFile('URL_image')) {
-                    $imagePath = $request->file('URL_image')->store('profile_images','public');
-                    $productDetail->productImage()->create([
-                        'url_image' => Storage::url($imagePath),
-                    ]);
+                    // Xử lý tập tin hình ảnh và lưu nó vào thư mục lưu trữ
+                    $imagePath = $request->file('URL_image')->store('profile_images', 'public');
+
+                    // Tạo một hình ảnh sản phẩm mới và gán đường dẫn hình ảnh
+                    $productImage = new Product_Images();
+                    $productImage->url_image = Storage::url($imagePath);
+
+                    // Lưu hình ảnh sản phẩm vào cơ sở dữ liệu
+                    $productDetail->productImage()->save($productImage);
                 }
             }
 
-            Session::flash('success', 'Thêm sản phẩm thành công');
+            // Hiển thị thông báo thành công nếu không có lỗi xảy ra
+            Session::flash('success', 'Thêm sản phẩm thành công');
         } catch (\Exception $err) {
-            DB::rollBack();
-            Session::flash('error', 'Thêm danh mục lỗi');
-            // \Log::error($err->getMessage());
-            dd($err->getMessage());
+            // Xử lý các ngoại lệ và hiển thị thông báo lỗi
+            Session::flash('error', 'Thêm sản phẩm lỗi');
+            \Log::error($err->getMessage());
             return redirect()->back()->withInput();
         }
 
-        // Redirect or do something else as needed
+        // Chuyển hướng đến trang danh sách sản phẩm sau khi thêm thành công
         return redirect()->intended('/seller1/products/list');
     }
+
 }
