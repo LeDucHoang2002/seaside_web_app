@@ -32,6 +32,7 @@ use App\Http\Controllers\Seller\VoucherController;
 use App\Http\Controllers\Seller\SellerProductController;
 
 use App\Http\Controllers\Admin\ApproveController;
+use App\Http\Controllers\Admin\UserController;
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\VoucherAdminController;
@@ -242,9 +243,20 @@ Route::middleware(['AdminMiddleware'])->group(function () {
 
     Route::get('/admin/category', [CategoryController::class, 'index'])->name('admin.category');
     Route::delete('/admin/category/delete/{id}', [CategoryController::class, 'destroy'])->name('admin.category.delete');
+
+    
+    Route::get('/admin/user', [UserController::class, 'index'])->name('admin.user');
+
     Route::get('/admin/addCategory', function () {
         return view('admin.category.add');
     })->name('admin.addCategory');
+
+    Route::get('/admin/addUser', function () {
+        return view('admin.user.add');
+    })->name('admin.addUser');
+    
+    Route::post('/user/store', [UserController::class, 'store'])->name('admin.user.store');
+
     Route::post('/category/store', [CategoryController::class, 'storeCategory'])->name('admin.category.store');
     Route::get('/admin/editCategory/{id}', [CategoryController::class, 'editCategory'])->name('admin.editCategory');
     Route::put('/admin/updateCategory/{id}', [CategoryController::class, 'updateCategory'])->name('admin.updateCategory');
