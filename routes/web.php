@@ -38,6 +38,9 @@ use App\Http\Controllers\Admin\VoucherAdminController;
 use App\Http\Controllers\Seller\OrderController as SellerOrderController;
 use App\Http\Controllers\Admin\DashboardAdminController;
 
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+
 Route::get('/', [HomeController::class, 'index'])->name('buyer.home');
 
 Route::get('/product', [ProductController::class, 'product'])->name('buyer.product');
@@ -55,6 +58,8 @@ Route::get('/buyer/login', function () {
 Route::get('/buyer/register', function () {
     return view('auth.buyer.register');
 })->name('buyer.register');
+
+
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -270,3 +275,12 @@ Route::post('/admin/vouchers/{id}', [VoucherAdminController::class, 'update'])->
 
 Route::post('/store-shop', [SellerController::class, 'store'])->name('shop.store');
 Route::get('/changeChannel', [SellerController::class, 'changeChannel'])->name('seller.changeChannel');
+
+
+
+
+//forgot pass
+Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
